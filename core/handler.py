@@ -1,3 +1,3 @@
 class ChatMessageHandler:
     def handle(self, message: str) -> None:
-        print(f"\n[Сообщение] {message}")
+        print(f"\n{message}")

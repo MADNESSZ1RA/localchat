@@ -2,18 +2,18 @@ from db.models import User
 from db.database import SessionLocal
 import hashlib
 
+
 class UserService:
     def __init__(self):
         self.db = SessionLocal()
 
-    def hash_password(self, password: str) -> str:
-        return hashlib.sha256(password.encode()).hexdigest()
+    def _hash(self, value: str) -> str:
+        return hashlib.sha256(value.encode()).hexdigest()
 
     def register(self, username: str, password: str) -> bool:
         if self.db.query(User).filter_by(username=username).first():
             return False
-        user = User(username=username, password_hash=self.hash_password(password))
-        self.db.add(user)
+        self.db.add(User(username=username, password_hash=self._hash(password)))
         self.db.commit()
         return True
 
@@ -21,4 +21,4 @@ class UserService:
         user = self.db.query(User).filter_by(username=username).first()
         if not user:
             return False
-        return user.password_hash == self.hash_password(password)
+        return user.password_hash == self._hash(password)

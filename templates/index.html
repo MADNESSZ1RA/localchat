@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>LAN Chat</title>
+    <style>
+      body {
+        font-family: Arial;
+      }
+      #chat {
+        border: 1px solid #999;
+        height: 300px;
+        overflow-y: auto;
+        padding: 5px;
+      }
+      #msg {
+        width: 80%;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>LAN Chat</h2>
+
+    <div id="auth">
+      <input id="user" placeholder="Username" />
+      <input id="pass" type="password" placeholder="Password" />
+      <button onclick="reg()">Register</button>
+      <button onclick="log()">Login</button>
+    </div>
+
+    <div id="chat"></div>
+
+    <input id="msg" />
+    <button onclick="send()">Send</button>
+
+    <script>
+      let user = null,
+        last = -1;
+      function q(id) {
+        return document.getElementById(id);
+      }
+      function req(p, m, b) {
+        return fetch(p, {
+          method: m,
+          headers: { "Content-Type": "application/json" },
+          body: b ? JSON.stringify(b) : null,
+        });
+      }
+      function reg() {
+        req("/register", "POST", {
+          username: q("user").value,
+          password: q("pass").value,
+        }).then((r) => alert(r.status === 204 ? "ok" : "exists"));
+      }
+      function log() {
+        user = q("user").value;
+        req("/login", "POST", {
+          username: user,
+          password: q("pass").value,
+        }).then((r) => {
+          if (r.status === 204) {
+            q("auth").style.display = "none";
+            poll();
+          } else alert("err");
+        });
+      }
+      function send() {
+        req("/messages", "POST", { user, text: q("msg").value });
+        q("msg").value = "";
+      }
+      function poll() {
+        req("/messages?last_id=" + last, "GET")
+          .then((r) => r.json())
+          .then((a) => {
+            a.forEach((m) => {
+              last = m.id;
+              const d = document.createElement("div");
+              d.textContent = m.user + ": " + m.text;
+              q("chat").appendChild(d);
+              q("chat").scrollTop = 9999;
+            });
+            setTimeout(poll, 1000);
+          });
+      }
+    </script>
+  </body>
+</html>

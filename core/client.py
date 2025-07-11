@@ -1,6 +1,7 @@
 from threading import Thread
 from core.interfaces import IMessageTransport, IMessageHandler
 
+
 class ChatClient:
     def __init__(self, transport: IMessageTransport, handler: IMessageHandler, username: str):
         self.transport = transport
@@ -10,7 +11,6 @@ class ChatClient:
     def start(self) -> None:
         Thread(target=self._receive_loop, daemon=True).start()
         self.transport.send(f"{self.username} вошёл в чат.")
-
         while True:
             msg = input("> ")
             self.transport.send(f"{self.username}: {msg}")

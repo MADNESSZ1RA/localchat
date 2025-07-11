@@ -1,5 +1,5 @@
 import socket
-from threading import Thread
+
 
 class TCPTransport:
     def __init__(self, host: str, port: int):
@@ -7,7 +7,7 @@ class TCPTransport:
         self.sock.connect((host, port))
 
     def send(self, data: str) -> None:
-        self.sock.sendall(data.encode("utf-8"))
+        self.sock.sendall(data.encode())
 
     def receive(self) -> str:
-        return self.sock.recv(4096).decode("utf-8")
+        return self.sock.recv(4096).decode()
